@@ -3,7 +3,7 @@
   "name": "JustWatch by akuiraz86",
   "id": "com.akuiraz86.justwatch",
   "version": 1,
-  "classPath": "Akuiraz86.JustWatch",
+  "classPath": "JakedUp.JustWatch",
   "permaUrl": "https://raw.githubusercontent.com/akuiraz86/watch-now-starter/main/package.js"
 }
 */
