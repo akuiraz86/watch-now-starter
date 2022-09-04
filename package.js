@@ -1,10 +1,10 @@
 /*
 {
-  "name": "JustWatch",
-  "id": "com.jakedup.justwatch",
+  "name": "JustWatch by akuiraz86",
+  "id": "com.akuiraz86.justwatch",
   "version": 1,
-  "classPath": "JakedUp.JustWatch",
-  "permaUrl": "https://syncler-providers.herokuapp.com/syncler/kosmos-justwatch.php"
+  "classPath": "Akuiraz86.JustWatch",
+  "permaUrl": "https://raw.githubusercontent.com/akuiraz86/watch-now-starter/main/package.js"
 }
 */
 
