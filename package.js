@@ -112,6 +112,20 @@
             ],
             "justwatch_slug": "paramount-plus"
           },
+          "386": {
+            "name": "Peacock",
+            "android_ids": [
+              "com.peacocktv.peacockandroid"
+            ],
+            "justwatch_slug": "peacock"
+          },
+          "387": {
+            "name": "Peacock Premium",
+            "android_ids": [
+              "com.peacocktv.peacockandroid"
+            ],
+            "justwatch_slug": "peacock-premium"
+          },
           "192": {
             "name": "YouTube",
             "android_ids": [
