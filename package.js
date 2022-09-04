@@ -1,133 +1,222 @@
 /*
 {
-  "name": "Watch Now",
-  "id": "com.syncler.watch.now",
+  "name": "JustWatch",
+  "id": "com.jakedup.justwatch",
   "version": 1,
-  "classPath": "watchNow.WatchNowPackage",
-  "permaUrl": "https://raw.githubusercontent.com/synclerd/watch-now-starter/main/package.js"
+  "classPath": "JakedUp.JustWatch",
+  "permaUrl": "https://syncler-providers.herokuapp.com/syncler/kosmos-justwatch.php"
 }
 */
 
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-        typeof define === 'function' && define.amd ? define(['exports'], factory) :
-            (factory((global.watchNow = {})));
-}(this, (function (exports) {
-    'use strict';
+(function(global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (factory((global.JakedUp = {})));
+} (this, (function(exports) {
+  'use strict';
 
-    /**
-     * You may add additional services available in your location
-     * and their package names
-     */
-    var services = [
-        {
-            service: 'Paramount+',
-            androidPackageNames: ['com.cbs.ott']
-        },
-        {
-            service: 'Tubi',
-            androidPackageNames: ['com.tubitv']
-        },
-        {
-            service: 'Prime Video',
-            androidPackageNames: ['com.amazon.avod.thirdpartyclient', 'com.amazon.amazonvideo.livingroom', 'com.amazon.amazonvideo.livingroom.firetv']
-        },
-        {
-            service: 'Youtube',
-            androidPackageNames: ['com.google.android.youtube', 'com.google.android.youtube.tv', 'com.amazon.firetv.youtube', 'com.google.android.youtube.googletv', 'com.google.android.youtube.googletv','com.liskovsoft.smarttubetv.beta']
-        }
-    ];
-    var AllSourceProvider = /** @class */ (function () {
-        function AllSourceProvider() {
-            this.sourceProviderMetadata = {
-                name: 'Watch now',
-                premium: false
-            };
-        }
-        AllSourceProvider.prototype.search = function (env, request) {
-            var sources = [];
-            var streamingServices = services
-                .filter(function (service) {
-                    /**
-                     * Here you may want to filter out
-                     * services that are not available in your location
-                     *
-                     * Here you may also want to connect to 3rd party apis
-                     * to find out if the content requested is available in your location.
-                     */
-                    var _a;
-                    /**
-                     * Example: Reading media metadata
-                     */
-                    var movie = request.movie;
-                    var show = (_a = request.episode) === null || _a === void 0 ? void 0 : _a.show;
-                    var item = movie ? movie : show;
-                    console.log(item.ids.imdb);
-                    console.log(item.ids.tmdb);
-                    console.log(item.ids.trakt);
-                    console.log(item.titles.main.title);
-                    if (request.episode) {
-                        console.log(request.episode.seasonNumber);
-                        console.log(request.episode.episodeNumber);
-                    }
-                    /**
-                     * Example: Connecting to 3rd party api
-                     *
-                     * createNewInstance creates an axios instance
-                     * which can send http requests for you.
-                     * Axios doc: https://github.com/axios/axios.
-                     */
-                    var httpClient = env.httpClientFactory.createNewInstance();
-                    //httpClient.get(yourApiUrl)
-                    return true;
-                });
-            streamingServices
-                .forEach(function (service) {
-                    return service.androidPackageNames
-                        .forEach(function (androidPackage) {
-                            sources.push({
-                                /**
-                                 * Mandatory
-                                 * Android package to launch
-                                 */
-                                androidPackageName: androidPackage,
-                                /**
-                                 * Optional.
-                                 * If this package supports deep linking
-                                 * providing an url to correct content here
-                                 * will cause the app to automatically navigate to the content upon launch.
-                                 * Which can be very convenient.
-                                 */
-                                url: 'android://' + androidPackage
-                            });
-                        });
-                });
-            return Promise.resolve(sources);
+  var simplify_string = function(string, spaces) {
+    return (string || '')
+    .toString()
+    .replace(/[\{\}\[\]\(\)\-\_\.\s]+/g, ' ')
+    .replace(/(^\s*(The|A|An)\s+|\,\s*(The|A|An)\s*$)/gi, '')
+    .replace(/\s+(And|&|\'?N)\s+/gi, ' ')
+    .replace(/\s+(Part|Pt\.)\s+/gi, ' ')
+    .replace(/[^A-Za-z0-9\s]/g, '')
+    .replace(/\s+/g, spaces || '')
+    .toLowerCase();
+  };
+
+  var object_map = function(object, callback) {
+    var new_array = [];
+    Object.keys(object).forEach(function(key, index) {
+      new_array.push(callback(object[key], key))
+    });
+    return new_array;
+  };
+
+  class JustWatch {
+    constructor() {
+      this.sourceProviders = [
+        new JustWatchProvider()
+      ];
+    }
+    createBundle(env, request) {
+      return new Promise((resolve, reject) => {
+        var bundle = {
+          sources: [],
+          sourceProviderMetadatas: this.sourceProviders.map(function(provider) {
+            return provider.metadata;
+          })
         };
-        return AllSourceProvider;
-    }());
+        resolve(bundle);
+      });
+    }
+    createSourceProvider(env, metadata) {
+      return this.sourceProviders.filter(function(provider) {
+        return provider.metadata.name == metadata.name;
+      })[0];
+    }
+  }
 
-    var WatchNowPackage = /** @class */ (function () {
-        /**
-         *
-         */
-        function WatchNowPackage() {
-            this.sourceProviders = [new AllSourceProvider()];
+  class JustWatchProvider {
+    constructor() {
+      this.metadata = {
+        name: 'JustWatch',
+        premium: false,
+        containsTorrents: false,
+        requiresDebrid: false,
+      };
+    }
+    search(env, request) {
+      try {
+        request.collectionItem = request.movie || request.episode;
+        request.collection = request.collectionItem.show || request.collectionItem;
+        request.meta = {};
+        request.meta.type = request.movie ? 'movie' : 'show';
+        request.meta.title = (request.collection.titles.original||{}).title || request.collection.titles.main.title;
+        request.meta.year = new Date(request.collection.release * 1000).getFullYear();
+        request.meta.runtime = request.meta.type == 'movie' ? '110 min' : '50 min';
+        request.meta.filesize = (parseInt(request.meta.runtime) * 60) * (request.meta.type == 'movie' ? 1000000 : 500000);
+
+        var providers =
+        {
+          "8": {
+            "name": "Netflix",
+            "android_ids": [
+              "com.netflix.mediaclient",
+              "com.netflix.ninja"
+            ],
+            "justwatch_slug": "nfx"
+          },
+          "350": {
+            "name": "Apple TV Plus",
+            "android_ids": [
+              "com.apple.atve.androidtv.appletv"
+            ],
+            "justwatch_slug": "apple-tv-plus"
+          },
+          "9": {
+            "name": "Amazon Prime Video",
+            "android_ids": [
+              "com.amazon.avod.thirdpartyclient",
+              "com.amazon.amazonvideo.livingroom",
+              "com.amazon.amazonvideo.livingroom.firetv"
+            ],
+            "justwatch_slug": "amp"
+          },
+          "531": {
+            "name": "Paramount Plus",
+            "android_ids": [
+              "com.cbs.ott
+            ],
+            "justwatch_slug": "paramount-plus"
+          },
+          "192": {
+            "name": "YouTube",
+            "android_ids": [
+              "com.google.android.youtube",
+              "com.google.android.youtube.tv",
+              "com.amazon.firetv.youtube",
+              "com.google.android.youtube.googletv",,
+              "com.google.android.youtube.googletv",
+              "com.liskovsoft.smarttubetv.beta"
+            ],
+            "justwatch_slug": "yot"
+          }
+        };
+
+        var search_justwatch = function(title, year, type) {
+          var config = {
+            'page_size': 5,
+            'page': 1,
+            'query': title,
+            'release_year_from': year-1,
+            'release_year_until': year+1,
+            'matching_offers_only': true,
+            'content_types': [
+              type
+            ],
+            'monetization_types': [
+              'flatrate',
+              'free',
+              'ads',
+              // 'rent',
+              // 'buy',
+              // 'cinema'
+            ],
+            'providers': object_map(providers, function(provider, id) {
+              return provider.justwatch_slug;
+            }),
+          };
+          var url = 'https://apis.justwatch.com/content/titles/en_US/popular?language=en&body='+encodeURIComponent(JSON.stringify(config));
+          var axios = env.httpClientFactory.createNewInstance();
+          return axios.request({
+            url: url
+          }).then(response => {
+            return response.data;
+          }).then(results => {
+            var result = {};
+            if (results.items) {
+              results.items.some(function(item, index) {
+                if (
+                  (
+                    (simplify_string(item.title).startsWith(simplify_string(title))) ||
+                    (simplify_string(item.original_title).startsWith(simplify_string(title)))
+                  ) &&
+                  (
+                    (simplify_string(item.original_release_year).indexOf(simplify_string(year)) > -1) ||
+                    (simplify_string(item.localized_release_date).indexOf(simplify_string(year)) > -1)
+                  )
+                ) {
+                  item.offers = item.offers.reverse();
+                  result = item;
+                  return true;
+                }
+              });
+              console.log('Success fetching API!');
+            } else {
+              console.log('Error fetching API!');
+            }
+            return result;
+          });
         }
-        WatchNowPackage.prototype.createBundle = function (env, request) {
-            return Promise.resolve({
-                sourceProviderMetadatas: this.sourceProviders.map(function (provider) { return provider.sourceProviderMetadata; }),
-                sources: []
-            });
-        };
-        WatchNowPackage.prototype.createSourceProvider = function (env, metadata) {
-            return this.sourceProviders.filter(function (provider) { return provider.sourceProviderMetadata.name == metadata.name; })[0];
-        };
-        return WatchNowPackage;
-    }());
 
-    exports.WatchNowPackage = WatchNowPackage;
+        return new Promise((resolve, reject) => {
+          search_justwatch(request.meta.title, request.meta.year, request.meta.type).then(result => {
+            var uniques = [];
+            var results = [];
+            if (result.offers) {
+              result.offers.forEach(function(offer, index) {
+                if (!uniques.includes(offer.provider_id)) {
+                  uniques.push(offer.provider_id);
+                  var provider = providers[offer.provider_id];
+                  provider.android_ids.forEach(function(android_id) {
+                    results.push({
+                      name: `${request.meta.title} (${request.meta.year}) (${offer.presentation_type.toUpperCase()})`,
+                      androidPackageName: android_id,
+                      androidPackageData: offer.urls.standard_web || offer.urls.deeplink_android_tv,
+                      url: offer.urls.standard_web || offer.urls.deeplink_android_tv,
+                      quality: offer.presentation_type,
+                      sizeInBytes: request.meta.filesize
+                    });
+                  });
+                }
+              });
+              console.log(results.length+' results found!');
+            } else {
+              console.log('No results found!');
+            }
+            resolve(results);
+          });
+        });
+      } catch(error) {
+        console.error(error.stack);
+      }
+    }
+  }
 
-    Object.defineProperty(exports, '__esModule', { value: true });
+  exports.JustWatch = JustWatch;
 
+  Object.defineProperty(exports, '__esModule', {value: true});
 })));
