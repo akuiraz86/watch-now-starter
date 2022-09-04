@@ -1,7 +1,7 @@
 /*
 {
-  "name": "JustWatch by akuiraz86",
-  "id": "com.akuiraz86.justwatch",
+  "name": "JustWatch",
+  "id": "com.jakedup.justwatch",
   "version": 1,
   "classPath": "JakedUp.JustWatch",
   "permaUrl": "https://raw.githubusercontent.com/akuiraz86/watch-now-starter/main/package.js"
@@ -108,7 +108,7 @@
           "531": {
             "name": "Paramount Plus",
             "android_ids": [
-              "com.cbs.ott
+              "com.cbs.ott"
             ],
             "justwatch_slug": "paramount-plus"
           },
@@ -118,7 +118,6 @@
               "com.google.android.youtube",
               "com.google.android.youtube.tv",
               "com.amazon.firetv.youtube",
-              "com.google.android.youtube.googletv",,
               "com.google.android.youtube.googletv",
               "com.liskovsoft.smarttubetv.beta"
             ],
