@@ -2,7 +2,7 @@
 {
   "name": "JustWatch",
   "id": "com.jakedup.justwatch",
-  "version": 1,
+  "version": 2,
   "classPath": "JakedUp.JustWatch",
   "permaUrl": "https://raw.githubusercontent.com/akuiraz86/watch-now-starter/main/package.js"
 }
@@ -84,7 +84,6 @@
           "8": {
             "name": "Netflix",
             "android_ids": [
-              "com.netflix.mediaclient",
               "com.netflix.ninja"
             ],
             "justwatch_slug": "nfx"
@@ -99,9 +98,7 @@
           "9": {
             "name": "Amazon Prime Video",
             "android_ids": [
-              "com.amazon.avod.thirdpartyclient",
-              "com.amazon.amazonvideo.livingroom",
-              "com.amazon.amazonvideo.livingroom.firetv"
+              "com.amazon.amazonvideo.livingroom"
             ],
             "justwatch_slug": "amp"
           },
@@ -125,17 +122,6 @@
               "com.peacocktv.peacockandroid"
             ],
             "justwatch_slug": "peacock-premium"
-          },
-          "192": {
-            "name": "YouTube",
-            "android_ids": [
-              "com.google.android.youtube",
-              "com.google.android.youtube.tv",
-              "com.amazon.firetv.youtube",
-              "com.google.android.youtube.googletv",
-              "com.liskovsoft.smarttubetv.beta"
-            ],
-            "justwatch_slug": "yot"
           }
         };
 
