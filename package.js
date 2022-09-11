@@ -1,7 +1,7 @@
 /*
 {
-  "name": "JustWatch",
-  "id": "com.jakedup.justwatch",
+  "name": "JustWatch2",
+  "id": "com.jakedup.justwatch2",
   "version": 2,
   "classPath": "JakedUp.JustWatch",
   "permaUrl": "https://raw.githubusercontent.com/akuiraz86/watch-now-starter/main/package.js"
